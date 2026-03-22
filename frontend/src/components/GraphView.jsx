@@ -1,10 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react'
 import cytoscape from 'cytoscape'
-import dagre from 'cytoscape-dagre'
 import './GraphView.css'
-
-// Register dagre layout
-cytoscape.use(dagre)
 
 // Node type → color mapping
 const TYPE_COLORS = {
@@ -136,12 +132,23 @@ export default function GraphView({ elements, onNodeClick, highlightedNodes, sho
             elements: elements,
             style: CYTOSCAPE_STYLE,
             layout: {
-                name: 'dagre',
-                rankDir: 'LR',
-                nodeSep: 30,
-                rankSep: 60,
-                edgeSep: 10,
-                animate: false,
+                name: 'cose',
+                idealEdgeLength: 100,
+                nodeOverlap: 20,
+                refresh: 20,
+                fit: true,
+                padding: 30,
+                randomize: true,
+                componentSpacing: 100,
+                nodeRepulsion: 400000,
+                edgeElasticity: 100,
+                nestingFactor: 5,
+                gravity: 80,
+                numIter: 1000,
+                initialTemp: 200,
+                coolingFactor: 0.95,
+                minTemp: 1.0,
+                animate: false
             },
             minZoom: 0.1,
             maxZoom: 4,
