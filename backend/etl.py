@@ -419,19 +419,24 @@ def main():
 
     print(f"DEBUG: __file__ is {abs_file}")
     print(f"DEBUG: Resolved PROJECT ROOT is {root}")
-    print(f"DEBUG: Current Working Directory is {os.getcwd()}")
     print(f"DEBUG: Checking for data folder in root: {root / 'sap-o2c-data'} -> {(root / 'sap-o2c-data').exists()}")
-    print(f"DEBUG: Raw data_dir from args/env: {args.data_dir}")
 
-    # Force absolute resolution if it's relative (e.g. from an incorrect env var)
-    data_dir = Path(args.data_dir)
-    if not data_dir.is_absolute():
-        data_dir = (root / data_dir).resolve()
+    # Prioritize the internal repository path if it exists
+    repo_data_dir = root / "sap-o2c-data"
+    if repo_data_dir.exists():
+        data_dir = repo_data_dir
+        print(f"💡 Automatically using repository data folder at {data_dir}")
     else:
-        data_dir = data_dir.resolve()
+        # Fallback to args/env
+        data_dir = Path(args.data_dir)
+        if not data_dir.is_absolute():
+            data_dir = (root / data_dir).resolve()
+        else:
+            data_dir = data_dir.resolve()
 
     print(f"📂 Final resolved Data directory: {data_dir}")
     print(f"💾 Final resolved Database: {db_path}\n")
+    flag_file = Path(__file__).parent / ".etl_initialized" # Track state
 
     conn = sqlite3.connect(str(db_path))
     conn.execute("PRAGMA journal_mode=WAL")
