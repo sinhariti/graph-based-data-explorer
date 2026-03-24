@@ -400,24 +400,26 @@ def build_graph_nodes_table(conn: sqlite3.Connection):
 
 def main():
     abs_file = os.path.abspath(__file__)
-    BASE_DIR = os.path.dirname(abs_file)
-    DEFAULT_DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, "../sap-o2c-data"))
-    DEFAULT_DB_PATH = os.path.abspath(os.path.join(BASE_DIR, "../o2c_data.db"))
+    # Correct BASE_DIR is the root folder containing both backend/ and sap-o2c-data/
+    root = Path(abs_file).resolve().parent.parent
+    
+    DEFAULT_DATA_DIR = os.getenv("DATA_DIR", str(root / "sap-o2c-data"))
+    DEFAULT_DB_PATH = os.getenv("DB_PATH", str(root / "o2c_data.db"))
 
     parser = argparse.ArgumentParser(description="ETL: SAP O2C JSONL → SQLite")
     parser.add_argument("--data-dir", default=DEFAULT_DATA_DIR, help="Path to JSONL data directory")
     parser.add_argument("--db-path", default=DEFAULT_DB_PATH, help="Output SQLite database path")
     args = parser.parse_args()
 
-    data_dir = Path(args.data_dir).resolve()
-    db_path = Path(args.db_path).resolve()
+    data_dir = Path(args.data_dir) # Use raw path from default/arg
+    db_path = Path(args.db_path)
 
     if db_path.exists():
         os.remove(db_path)
 
     print(f"DEBUG: __file__ is {__file__}")
     print(f"DEBUG: os.path.abspath(__file__) is {abs_file}")
-    print(f"DEBUG: BASE_DIR (dirname) is {BASE_DIR}")
+    print(f"DEBUG: Resolved PROJECT ROOT is {root}")
     print(f"📂 Data directory: {data_dir}")
     print(f"💾 Database: {db_path}\n")
 
