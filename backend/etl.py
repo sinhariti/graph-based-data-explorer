@@ -399,9 +399,13 @@ def build_graph_nodes_table(conn: sqlite3.Connection):
 
 
 def main():
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    DEFAULT_DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, "../sap-o2c-data"))
+    DEFAULT_DB_PATH = os.path.abspath(os.path.join(BASE_DIR, "../o2c_data.db"))
+
     parser = argparse.ArgumentParser(description="ETL: SAP O2C JSONL → SQLite")
-    parser.add_argument("--data-dir", default="../sap-o2c-data", help="Path to JSONL data directory")
-    parser.add_argument("--db-path", default="../o2c_data.db", help="Output SQLite database path")
+    parser.add_argument("--data-dir", default=DEFAULT_DATA_DIR, help="Path to JSONL data directory")
+    parser.add_argument("--db-path", default=DEFAULT_DB_PATH, help="Output SQLite database path")
     args = parser.parse_args()
 
     data_dir = Path(args.data_dir).resolve()
