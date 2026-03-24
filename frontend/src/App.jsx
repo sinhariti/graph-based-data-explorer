@@ -17,9 +17,10 @@ function App() {
   useEffect(() => {
     const fetchGraph = async () => {
       try {
+        const apiBase = import.meta.env.VITE_API_URL || ''
         const [graphRes, statsRes] = await Promise.all([
-          fetch('/api/graph/full'),
-          fetch('/api/graph/stats'),
+          fetch(`${apiBase}/api/graph/full`),
+          fetch(`${apiBase}/api/graph/stats`),
         ])
         const graphJson = await graphRes.json()
         const statsJson = await statsRes.json()
@@ -37,7 +38,8 @@ function App() {
   // Handle node click
   const handleNodeClick = useCallback(async (nodeId, nodeType) => {
     try {
-      const res = await fetch(`/api/graph/node/${encodeURIComponent(nodeId)}?node_type=${encodeURIComponent(nodeType)}`)
+      const apiBase = import.meta.env.VITE_API_URL || ''
+      const res = await fetch(`${apiBase}/api/graph/node/${encodeURIComponent(nodeId)}?node_type=${encodeURIComponent(nodeType)}`)
       if (res.ok) {
         const data = await res.json()
         setSelectedNode(data)
