@@ -421,7 +421,7 @@ def main():
     print(f"DEBUG: Resolved PROJECT ROOT is {root}")
     print(f"DEBUG: Checking for data folder in root: {root / 'sap-o2c-data'} -> {(root / 'sap-o2c-data').exists()}")
 
-    # Prioritize the internal repository path if it exists
+    # Prioritize the internal repository paths
     repo_data_dir = root / "sap-o2c-data"
     if repo_data_dir.exists():
         data_dir = repo_data_dir
@@ -433,6 +433,10 @@ def main():
             data_dir = (root / data_dir).resolve()
         else:
             data_dir = data_dir.resolve()
+
+    # FORCE the database path to be in the project root to match database.py
+    # regardless of incorrect environment variables.
+    db_path = (root / "o2c_data.db").resolve()
 
     print(f"📂 Final resolved Data directory: {data_dir}")
     print(f"💾 Final resolved Database: {db_path}\n")

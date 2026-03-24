@@ -2,11 +2,15 @@
 Database module: SQLite connection and query helpers.
 """
 
-import sqlite3
+import os
 from pathlib import Path
 from typing import Optional
 
-DB_PATH = Path(__file__).parent.parent / "o2c_data.db"
+# Resolve DB_PATH relative to the project root
+DEFAULT_DB_PATH = Path(__file__).resolve().parent.parent / "o2c_data.db"
+DB_PATH = Path(os.getenv("DB_PATH", str(DEFAULT_DB_PATH))).resolve()
+
+print(f"DEBUG: Database connecting to {DB_PATH}")
 
 _connection: Optional[sqlite3.Connection] = None
 

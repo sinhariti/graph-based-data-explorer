@@ -33,6 +33,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    return {
+        "error": str(exc),
+        "detail": "Internal Server Error",
+        "type": type(exc).__name__
+    }
+
 
 # ── Request/Response models ─────────────────────────────────────────────────
 
