@@ -417,11 +417,21 @@ def main():
     if db_path.exists():
         os.remove(db_path)
 
-    print(f"DEBUG: __file__ is {__file__}")
-    print(f"DEBUG: os.path.abspath(__file__) is {abs_file}")
+    print(f"DEBUG: __file__ is {abs_file}")
     print(f"DEBUG: Resolved PROJECT ROOT is {root}")
-    print(f"📂 Data directory: {data_dir}")
-    print(f"💾 Database: {db_path}\n")
+    print(f"DEBUG: Current Working Directory is {os.getcwd()}")
+    print(f"DEBUG: Checking for data folder in root: {root / 'sap-o2c-data'} -> {(root / 'sap-o2c-data').exists()}")
+    print(f"DEBUG: Raw data_dir from args/env: {args.data_dir}")
+
+    # Force absolute resolution if it's relative (e.g. from an incorrect env var)
+    data_dir = Path(args.data_dir)
+    if not data_dir.is_absolute():
+        data_dir = (root / data_dir).resolve()
+    else:
+        data_dir = data_dir.resolve()
+
+    print(f"📂 Final resolved Data directory: {data_dir}")
+    print(f"💾 Final resolved Database: {db_path}\n")
 
     conn = sqlite3.connect(str(db_path))
     conn.execute("PRAGMA journal_mode=WAL")
