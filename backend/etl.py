@@ -399,7 +399,8 @@ def build_graph_nodes_table(conn: sqlite3.Connection):
 
 
 def main():
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    abs_file = os.path.abspath(__file__)
+    BASE_DIR = os.path.dirname(abs_file)
     DEFAULT_DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, "../sap-o2c-data"))
     DEFAULT_DB_PATH = os.path.abspath(os.path.join(BASE_DIR, "../o2c_data.db"))
 
@@ -413,20 +414,23 @@ def main():
 
     if db_path.exists():
         os.remove(db_path)
-        print(f"♻ Removed existing database: {db_path}")
+
+    print(f"DEBUG: __file__ is {__file__}")
+    print(f"DEBUG: os.path.abspath(__file__) is {abs_file}")
+    print(f"DEBUG: BASE_DIR (dirname) is {BASE_DIR}")
+    print(f"📂 Data directory: {data_dir}")
+    print(f"💾 Database: {db_path}\n")
 
     conn = sqlite3.connect(str(db_path))
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA synchronous=NORMAL")
 
-    print(f"📂 Data directory: {data_dir}")
-    print(f"💾 Database: {db_path}\n")
-
     # ── Load entities ──
+    loaded_any = False
     for folder_name, (table_name, pk_cols) in ENTITIES.items():
         folder_path = data_dir / folder_name
         if not folder_path.exists():
-            print(f"⚠ Skipping {folder_name} (folder not found)")
+            print(f"⚠ Skipping {folder_name} (folder not found at {folder_path})")
             continue
 
         rows = list(read_jsonl_folder(folder_path))
@@ -439,6 +443,15 @@ def main():
         insert_rows(conn, table_name, columns, rows)
         conn.commit()
         print(f"✅ {table_name}: {len(rows)} rows, {len(columns)} columns")
+        loaded_any = True
+
+    if not loaded_any:
+        print("\n❌ Failed: No data folders found. Please ensure the data files are committed to Git.")
+        conn.close()
+        if db_path.exists():
+            os.remove(db_path)
+        return
+    flagship_node_id = "business_partners::1" # Example
 
     # ── Build edges ──
     print("\n🔗 Building graph edges...")
